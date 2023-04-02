@@ -13,7 +13,7 @@ print("Model is being trained based on [" + str(NUMBER_OF_REVIEWS) + "] reviews 
 reviews = get_reviews(NUMBER_OF_REVIEWS)
 
 # Split the dataset into training and testing sets
-train_data, test_data = train_test_split(reviews, test_size=0.3, stratify=reviews['positive'], random_state=0)
+train_data, test_data = train_test_split(reviews, stratify=reviews['positive'], random_state=1)
 
 # Create a bag of words representation of the text data
 vectorizer = CountVectorizer(max_features=1000, binary=False)

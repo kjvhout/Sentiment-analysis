@@ -1,5 +1,10 @@
 import pandas as pd
 from sqlalchemy import create_engine
+import sys
+from pathlib import Path
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
 import config
 
 engine = create_engine(f'mysql+pymysql://{config.login}@localhost/bdasignment1')

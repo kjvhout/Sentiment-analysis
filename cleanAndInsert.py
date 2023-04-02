@@ -12,6 +12,7 @@ engine = sql.create_engine(f'mysql+pymysql://{config.login}@localhost/bdasignmen
 # Read all the data
 hotel_dataset = pd.read_csv('Data/Hotel_Reviews.csv')
 scraped_booking_dataset = pd.read_csv('Data/Booking.com_scraped_reviews.csv')
+scraped_tripadvisor_dataset = pd.read_csv('Data/tripadvisor_scraped_reviews.csv')
 hand_written_dataset = pd.read_csv('Data/hand_written_reviews.csv')
 
 # Get the positive and Negative reviews from the hotel dataset
@@ -23,22 +24,18 @@ negative_reviews = hotel_dataset.loc[:, ['Negative_Review', 'Review_Total_Negati
 positive_reviews = positive_reviews.rename(columns={"Positive_Review": "review", "Review_Total_Positive_Word_Counts": "total_words"})
 negative_reviews = negative_reviews.rename(columns={"Negative_Review": "review", "Review_Total_Negative_Word_Counts": "total_words"})
 
-# Add total_words to scraped and handwritten datasets
-scraped_booking_dataset['total_words'] = scraped_booking_dataset['review'].str.split().str.len()
-hand_written_dataset['total_words'] = hand_written_dataset['review'].str.split().str.len()
-
-# Remove all reviews with less than x amount of words
-positive_reviews = positive_reviews[positive_reviews['total_words'] > MIN_WORD_AMOUNT]
-negative_reviews = negative_reviews[negative_reviews['total_words'] > MIN_WORD_AMOUNT]
-scraped_booking_dataset = scraped_booking_dataset[scraped_booking_dataset['total_words'] > MIN_WORD_AMOUNT]
-hand_written_dataset = hand_written_dataset[hand_written_dataset['total_words'] > MIN_WORD_AMOUNT]
-
 # Replace with boolean value
 positive_reviews['positive'] = True
 negative_reviews['positive'] = False
 
+# Add total_words to scraped and handwritten datasets
+scraped_booking_dataset['total_words'] = scraped_booking_dataset['review'].str.split().str.len()
+scraped_tripadvisor_dataset['total_words'] = scraped_tripadvisor_dataset['review'].str.split().str.len()
+hand_written_dataset['total_words'] = hand_written_dataset['review'].str.split().str.len()
+
 # Add all reviews to one variable
-all_reviews = pd.concat([positive_reviews, negative_reviews, scraped_booking_dataset, hand_written_dataset])
+all_reviews = pd.concat([positive_reviews, negative_reviews, scraped_booking_dataset, scraped_tripadvisor_dataset,
+                         hand_written_dataset])
 
 # Filter out all the stopwords
 stop = stopwords.words('english')
@@ -52,6 +49,10 @@ custom_stop_words = ['hotel', 'Hotel', 'food', 'room', 'Room', 'rooms', 'Rooms',
                      'fitness', 'Gym', 'people', 'hotels', 'Hotels', 'money', 'check-in', 'weekend', 'booking']
 stop.extend(custom_stop_words)
 all_reviews['review'] = all_reviews['review'].apply(lambda x: ' '.join([word for word in x.split() if word not in stop]))
+
+# Remove all reviews with less than X amount of words
+all_reviews['total_words'] = all_reviews['review'].str.split().str.len()
+all_reviews = all_reviews[all_reviews['total_words'] > MIN_WORD_AMOUNT]
 
 # Add all the reviews to the database
 all_reviews.to_sql(name='review', con=engine, index=True, if_exists='replace', chunksize=1000)

@@ -1,4 +1,4 @@
-from fetchData import get_reviews
+from fetchData import get_reviews, get_random_reviews
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -13,7 +13,8 @@ print("Model is being trained based on [" + str(NUMBER_OF_REVIEWS) + "] reviews 
 reviews = get_reviews(NUMBER_OF_REVIEWS)
 
 # Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(reviews['review'], reviews['positive'], random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(reviews['review'], reviews['positive'], train_size=0.90,
+                                                    random_state=0)
 
 # Vectorize the text data using a Bag of Words model
 vectorizer = CountVectorizer()

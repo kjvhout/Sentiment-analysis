@@ -15,6 +15,7 @@ with open("trained/decisionTree_model.pkl", 'rb') as f:
     dt_from_pickle = pickle.load(f)
 vectorizer_dt = pickle.load(open("trained/decisionTree_vectorizer.pickle", 'rb'))
 
+
 def predict_sentiment_nb(input_text):
     input_vec = vectorizer_nb.transform([input_text])
     sentiment = nb_from_pickle.predict(input_vec)[0]
@@ -26,10 +27,12 @@ def predict_sentiment_lr(input_text):
     sentiment = lr_from_pickle.predict(input_vec)[0]
     return sentiment
 
+
 def predict_sentiment_dt(input_text):
     input_vec = vectorizer_dt.transform([input_text])
     sentiment = dt_from_pickle.predict(input_vec)[0]
     return sentiment
+
 
 while True:
     # Test the custom input function
@@ -43,5 +46,3 @@ while True:
     print(f"Prediction [LogisticRegression]: \t{('Negative (-)', 'Positive (+)')[int(sentiment) == 1]}")
     sentiment = predict_sentiment_dt(input_text)
     print(f"Prediction [DecisionTree]: \t\t{('Negative (-)', 'Positive (+)')[int(sentiment) == 1]}\n")
-
-
